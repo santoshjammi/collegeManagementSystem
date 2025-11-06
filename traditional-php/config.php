@@ -310,6 +310,11 @@ function formatDate($date) {
     return date('M d, Y', strtotime($date));
 }
 
+function formatDateTime($datetime) {
+    if (!$datetime) return '-';
+    return date('M d, Y g:i A', strtotime($datetime));
+}
+
 // Profile Picture Upload Functions
 function uploadProfilePicture($fileInput, $entityType = 'student', $entityId = null) {
     // Validate file input

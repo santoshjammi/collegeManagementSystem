@@ -1005,7 +1005,7 @@ function getPendingActions($role, $user) {
                                         <i class="bi bi-person me-1"></i>
                                         <span class="me-3"><?php echo escape($announcement['created_by_name'] ?? 'System'); ?></span>
                                         <i class="bi bi-clock me-1"></i>
-                                        <span><?php echo formatDate($announcement['created_at']); ?></span>
+                                        <span><?php echo formatDateTime($announcement['created_at']); ?></span>
                                     </div>
                                 </div>
                                 <div class="d-flex align-items-center">
