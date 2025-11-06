@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # =====================================================
+  # COLLEGE MANAGEMENT SYSTEM - DOCKER COMPOSE
+  # =====================================================
+  # Run with: docker-compose up -d
+  # Access at: http://localhost:8080
+
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: college_management_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: college_management
+      MYSQL_USER: cms_user
+      MYSQL_PASSWORD: cms_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./setup_database_complete.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      - ./test_users_setup.sql:/docker-entrypoint-initdb.d/02_users.sql
+    networks:
+      - college_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # PHP Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: college_management_app
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./traditional-php:/var/www/html
+      - ./uploads:/var/www/html/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - college_network
+    environment:
+      - DB_HOST=db
+      - DB_NAME=college_management
+      - DB_USER=cms_user
+      - DB_PASS=cms_password
+
+  # phpMyAdmin (optional - for database management)
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: college_management_phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: cms_user
+      PMA_PASSWORD: cms_password
+    depends_on:
+      - db
+    networks:
+      - college_network
+
+volumes:
+  db_data:
+    driver: local
+
+networks:
+  college_network:
+    driver: bridge

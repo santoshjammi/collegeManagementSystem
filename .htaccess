@@ -1,0 +1,242 @@
+RewriteEngine On
+
+# Handle PHP files
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+
+# Security headers
+<IfModule mod_headers.c>
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "no-referrer-when-downgrade"
+</IfModule>
+
+# Compress text files
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+</IfModule>
+
+# Cache static assets
+<IfModule mod_expires.c>
+    ExpiresActive on
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/pdf "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType application/x-javascript "access plus 1 month"
+    ExpiresByType application/x-shockwave-flash "access plus 1 month"
+    ExpiresByType image/x-icon "access plus 1 year"
+</IfModule>
+
+# Protect sensitive files
+<FilesMatch "\.(htaccess|htpasswd|ini|log|sh|sql)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Protect uploads directory
+<Directory "uploads/">
+    <FilesMatch "\.(php|exe|sh)$">
+        Order Allow,Deny
+        Deny from all
+    </FilesMatch>
+</Directory>
+
+# PHP settings
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
+php_value max_execution_time 300
+php_value memory_limit 128M
+
+# Error documents
+ErrorDocument 404 /404.php
+ErrorDocument 500 /500.php
+
+# Check MySQL
+if ! command -v mysql &> /dev/null; then
+    echo -e "${RED}❌ MySQL client is not installed. Please install MySQL/MariaDB first.${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✅ MySQL client found${NC}"
+
+# Check if MySQL server is running
+if ! mysqladmin ping -u$DB_USER -p$DB_PASS &> /dev/null; then
+    echo -e "${RED}❌ MySQL server is not running or credentials are incorrect.${NC}"
+    echo -e "${YELLOW}Please ensure MySQL is running and update credentials in this script if needed.${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✅ MySQL server is running${NC}"
+
+# Get database credentials
+echo ""
+echo -e "${BLUE}Database Configuration${NC}"
+read -p "MySQL Username [$DB_USER]: " input_user
+DB_USER=${input_user:-$DB_USER}
+
+read -s -p "MySQL Password: " input_pass
+echo ""
+DB_PASS=${input_pass:-$DB_PASS}
+
+# Test database connection
+echo -e "${BLUE}Testing database connection...${NC}"
+if ! mysql -u$DB_USER -p$DB_PASS -e "SELECT 1;" &> /dev/null; then
+    echo -e "${RED}❌ Database connection failed. Please check your credentials.${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✅ Database connection successful${NC}"
+
+# Create database
+echo ""
+echo -e "${BLUE}Creating database...${NC}"
+mysql -u$DB_USER -p$DB_PASS -e "CREATE DATABASE IF NOT EXISTS $DB_NAME CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+echo -e "${GREEN}✅ Database '$DB_NAME' created${NC}"
+
+# Import schema and data
+echo ""
+echo -e "${BLUE}Importing database schema and sample data...${NC}"
+
+if [ ! -f "setup_database_complete.sql" ]; then
+    echo -e "${RED}❌ setup_database_complete.sql not found in current directory${NC}"
+    exit 1
+fi
+
+mysql -u$DB_USER -p$DB_PASS $DB_NAME < setup_database_complete.sql
+echo -e "${GREEN}✅ Database schema imported${NC}"
+
+if [ -f "test_users_setup.sql" ]; then
+    mysql -u$DB_USER -p$DB_PASS $DB_NAME < test_users_setup.sql
+    echo -e "${GREEN}✅ Test users imported${NC}"
+fi
+
+# Create config.php
+echo ""
+echo -e "${BLUE}Creating configuration file...${NC}"
+
+if [ ! -f "config_template.php" ]; then
+    echo -e "${RED}❌ config_template.php not found${NC}"
+    exit 1
+fi
+
+cp config_template.php config.php
+
+# Update database credentials in config.php
+sed -i.bak "s/define('DB_USER', 'your_mysql_username');/define('DB_USER', '$DB_USER');/" config.php
+sed -i.bak "s/define('DB_PASS', 'your_mysql_password');/define('DB_PASS', '$DB_PASS');/" config.php
+
+echo -e "${GREEN}✅ Configuration file created${NC}"
+
+# Set permissions
+echo ""
+echo -e "${BLUE}Setting file permissions...${NC}"
+
+# Find web server user (common options)
+WEBSERVER_USER=""
+for user in www-data apache httpd nginx; do
+    if id "$user" &>/dev/null; then
+        WEBSERVER_USER="$user"
+        break
+    fi
+done
+
+if [ -n "$WEBSERVER_USER" ]; then
+    chown -R $WEBSERVER_USER:$WEBSERVER_USER traditional-php/uploads/ 2>/dev/null || true
+    chown -R $WEBSERVER_USER:$WEBSERVER_USER traditional-php/ 2>/dev/null || true
+    echo -e "${GREEN}✅ Permissions set for web server user: $WEBSERVER_USER${NC}"
+else
+    chmod 755 traditional-php/uploads/ 2>/dev/null || true
+    chmod 644 traditional-php/*.php 2>/dev/null || true
+    echo -e "${YELLOW}⚠️  Could not determine web server user. Set permissions manually.${NC}"
+fi
+
+# Create uploads directory if it doesn't exist
+mkdir -p traditional-php/uploads/
+chmod 755 traditional-php/uploads/
+
+# Create logs directory
+mkdir -p traditional-php/logs/
+chmod 755 traditional-php/logs/
+
+# Test PHP configuration
+echo ""
+echo -e "${BLUE}Testing PHP configuration...${NC}"
+
+cd traditional-php
+
+# Create a simple test script
+cat > test_config.php << 'EOF'
+<?php
+require_once 'config.php';
+try {
+    $stmt = $pdo->query("SELECT COUNT(*) as count FROM users");
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    echo "✅ Database connection: OK (" . $result['count'] . " users)\n";
+} catch (Exception $e) {
+    echo "❌ Database connection: FAILED - " . $e->getMessage() . "\n";
+    exit(1);
+}
+echo "✅ Configuration test passed\n";
+?>
+EOF
+
+if php test_config.php; then
+    echo -e "${GREEN}✅ PHP configuration test passed${NC}"
+    rm test_config.php
+else
+    echo -e "${RED}❌ PHP configuration test failed${NC}"
+    rm test_config.php
+    exit 1
+fi
+
+cd ..
+
+# Setup complete
+echo ""
+echo -e "${GREEN}========================================${NC}"
+echo -e "${GREEN}🎉 SETUP COMPLETE! 🎉${NC}"
+echo -e "${GREEN}========================================${NC}"
+echo ""
+echo -e "${BLUE}Your College Management System is ready!${NC}"
+echo ""
+echo -e "${YELLOW}Access the application at:${NC}"
+echo -e "  http://localhost/college-management-system/traditional-php/"
+echo ""
+echo -e "${YELLOW}Test Login Credentials:${NC}"
+echo -e "  Admin:    admin / password123"
+echo -e "  Faculty:  faculty1 / password123"
+echo -e "  Student:  student1 / password123"
+echo ""
+echo -e "${BLUE}Next Steps:${NC}"
+echo -e "  1. Open the URL above in your browser"
+echo -e "  2. Login with the test credentials"
+echo -e "  3. Explore the different modules"
+echo -e "  4. Customize settings as needed"
+echo ""
+echo -e "${BLUE}Important Files:${NC}"
+echo -e "  • config.php - Application configuration"
+echo -e "  • setup_database_complete.sql - Database schema"
+echo -e "  • README_SETUP.md - Detailed documentation"
+echo ""
+echo -e "${GREEN}Happy testing! 🚀${NC}"
+echo ""
+
+# Cleanup backup files
+rm -f config.php.bak
+
+exit 0</content>
+<parameter name="filePath">/Users/kgt/Desktop/Projects/PHP/CollegeManagementSystem/setup.sh
