@@ -183,7 +183,7 @@ function getPermissions() {
         'Student' => [
             'read' => ['all'],
             'write' => [], // No write permissions
-            'modules' => ['dashboard', 'grades', 'library', 'placements', 'announcements', 'papers']
+            'modules' => ['dashboard', 'grades', 'library', 'placements', 'announcements', 'papers', 'faculty']
         ]
     ];
 }

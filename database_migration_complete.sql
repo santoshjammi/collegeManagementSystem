@@ -71,11 +71,34 @@ CREATE TABLE IF NOT EXISTS students (
     user_id INT NULL UNIQUE,
     full_name VARCHAR(200) NOT NULL,
     email VARCHAR(100) UNIQUE,
+    contact_number VARCHAR(20),
     course_id INT NOT NULL,
     batch_id INT NOT NULL,
     academic_status ENUM('Active', 'On Leave', 'Suspended', 'Graduated') DEFAULT 'Active',
+    anticipated_graduation_year INT NULL,
     profile_picture VARCHAR(255) NULL,
     gender ENUM('Male', 'Female', 'Other') DEFAULT 'Other',
+    date_of_birth DATE,
+    date_of_joining DATE NOT NULL DEFAULT (CURRENT_DATE),
+    -- Address fields
+    address_line1 VARCHAR(255),
+    address_line2 VARCHAR(255),
+    city VARCHAR(100),
+    state VARCHAR(100),
+    postal_code VARCHAR(20),
+    country VARCHAR(100) DEFAULT 'India',
+    -- Guardian details
+    guardian_name VARCHAR(200),
+    guardian_relation VARCHAR(50),
+    guardian_contact_number VARCHAR(20),
+    guardian_email VARCHAR(100),
+    guardian_occupation VARCHAR(100),
+    guardian_address_line1 VARCHAR(255),
+    guardian_address_line2 VARCHAR(255),
+    guardian_city VARCHAR(100),
+    guardian_state VARCHAR(100),
+    guardian_postal_code VARCHAR(20),
+    guardian_country VARCHAR(100) DEFAULT 'India',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (course_id) REFERENCES courses(course_id),
@@ -94,6 +117,15 @@ CREATE TABLE IF NOT EXISTS faculty (
     qualification VARCHAR(200),
     experience_years INT,
     profile_picture VARCHAR(255) NULL,
+    date_of_birth DATE,
+    date_of_joining DATE NOT NULL DEFAULT (CURRENT_DATE),
+    -- Address fields
+    address_line1 VARCHAR(255),
+    address_line2 VARCHAR(255),
+    city VARCHAR(100),
+    state VARCHAR(100),
+    postal_code VARCHAR(20),
+    country VARCHAR(100) DEFAULT 'India',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 ) ENGINE=InnoDB;
@@ -314,19 +346,70 @@ INSERT INTO users (username, password_hash, role_id, is_active) VALUES
 ON DUPLICATE KEY UPDATE password_hash = VALUES(password_hash), role_id = VALUES(role_id), is_active = VALUES(is_active);
 
 -- Insert faculty
-INSERT INTO faculty (user_id, full_name, email, contact_number, department, employment_role, qualification, experience_years) VALUES
-(3, 'Dr. John Smith', 'faculty1@university.edu', '+1234567890', 'Computer Science', 'Associate Professor', 'PhD in Computer Science', 8),
-(4, 'Dr. Sarah Johnson', 'sarah.johnson@university.edu', '+1234567891', 'Information Technology', 'Professor', 'PhD in Information Systems', 12)
-ON DUPLICATE KEY UPDATE full_name = VALUES(full_name), email = VALUES(email), department = VALUES(department);
+INSERT INTO faculty (
+    user_id, full_name, email, contact_number, department, employment_role, 
+    qualification, experience_years, date_of_birth, date_of_joining,
+    address_line1, address_line2, city, state, postal_code, country
+) VALUES
+(3, 'Dr. John Smith', 'faculty1@university.edu', '+1234567890', 'Computer Science', 'Associate Professor', 
+ 'PhD in Computer Science', 8, '1980-06-15', '2016-07-01',
+ '100 University Avenue', 'Faculty Quarter A1', 'Mumbai', 'Maharashtra', '400050', 'India'),
+ 
+(4, 'Dr. Sarah Johnson', 'sarah.johnson@university.edu', '+1234567891', 'Information Technology', 'Professor', 
+ 'PhD in Information Systems', 12, '1975-12-03', '2012-08-15', 
+ '200 Campus Drive', 'Faculty Quarter B2', 'Mumbai', 'Maharashtra', '400050', 'India')
+ 
+ON DUPLICATE KEY UPDATE 
+    full_name = VALUES(full_name), 
+    email = VALUES(email), 
+    department = VALUES(department),
+    date_of_joining = VALUES(date_of_joining);
 
 -- Insert students
-INSERT INTO students (student_id, user_id, full_name, email, course_id, batch_id, academic_status, gender) VALUES
-('CS2023001', 5, 'Alice Johnson', 'alice.johnson@university.edu', 1, 1, 'Active', 'Female'),
-('CS2023002', 6, 'Bob Smith', 'bob.smith@university.edu', 1, 1, 'Active', 'Male'),
-('IT2023001', 7, 'Charlie Brown', 'charlie.brown@university.edu', 2, 3, 'Active', 'Male'),
-('ME2023001', 8, 'Diana Prince', 'diana.prince@university.edu', 3, 5, 'Active', 'Female'),
-('EE2023001', 9, 'Eve Adams', 'eve.adams@university.edu', 4, 6, 'Active', 'Female')
-ON DUPLICATE KEY UPDATE full_name = VALUES(full_name), email = VALUES(email), course_id = VALUES(course_id), batch_id = VALUES(batch_id);
+INSERT INTO students (
+    student_id, user_id, full_name, email, contact_number, course_id, batch_id, 
+    academic_status, gender, date_of_birth, date_of_joining,
+    address_line1, address_line2, city, state, postal_code, country,
+    guardian_name, guardian_relation, guardian_contact_number, guardian_email,
+    guardian_occupation, guardian_address_line1, guardian_city, guardian_state, guardian_postal_code
+) VALUES
+('CS2023001', 5, 'Alice Johnson', 'alice.johnson@university.edu', '+1234567801', 1, 1, 'Active', 'Female', 
+ '2004-03-15', '2023-08-01',
+ '123 Elm Street', 'Apt 2B', 'Mumbai', 'Maharashtra', '400001', 'India',
+ 'Robert Johnson', 'Father', '+1234567811', 'robert.johnson@email.com', 'Software Engineer',
+ '123 Elm Street', 'Mumbai', 'Maharashtra', '400001'),
+
+('CS2023002', 6, 'Bob Smith', 'bob.smith@university.edu', '+1234567802', 1, 1, 'Active', 'Male',
+ '2003-07-22', '2023-08-01', 
+ '456 Oak Avenue', NULL, 'Delhi', 'Delhi', '110001', 'India',
+ 'Mary Smith', 'Mother', '+1234567812', 'mary.smith@email.com', 'Teacher',
+ '456 Oak Avenue', 'Delhi', 'Delhi', '110001'),
+
+('IT2023001', 7, 'Charlie Brown', 'charlie.brown@university.edu', '+1234567803', 2, 3, 'Active', 'Male',
+ '2004-01-10', '2023-08-01',
+ '789 Pine Road', 'Block C', 'Bangalore', 'Karnataka', '560001', 'India', 
+ 'James Brown', 'Father', '+1234567813', 'james.brown@email.com', 'Business Owner',
+ '789 Pine Road', 'Bangalore', 'Karnataka', '560001'),
+
+('ME2023001', 8, 'Diana Prince', 'diana.prince@university.edu', '+1234567804', 3, 5, 'Active', 'Female',
+ '2003-11-05', '2023-08-01',
+ '321 Maple Lane', NULL, 'Chennai', 'Tamil Nadu', '600001', 'India',
+ 'Steve Prince', 'Father', '+1234567814', 'steve.prince@email.com', 'Doctor',
+ '321 Maple Lane', 'Chennai', 'Tamil Nadu', '600001'),
+
+('EE2023001', 9, 'Eve Adams', 'eve.adams@university.edu', '+1234567805', 4, 6, 'Active', 'Female',
+ '2004-05-18', '2023-08-01',
+ '654 Cedar Street', 'Unit 15', 'Pune', 'Maharashtra', '411001', 'India',
+ 'Linda Adams', 'Mother', '+1234567815', 'linda.adams@email.com', 'Nurse',
+ '654 Cedar Street', 'Pune', 'Maharashtra', '411001')
+
+ON DUPLICATE KEY UPDATE 
+    full_name = VALUES(full_name), 
+    email = VALUES(email), 
+    contact_number = VALUES(contact_number),
+    course_id = VALUES(course_id), 
+    batch_id = VALUES(batch_id),
+    date_of_joining = VALUES(date_of_joining);
 
 -- Insert subjects
 INSERT INTO subjects (subject_code, subject_name, course_id, semester, credits, faculty_id, description) VALUES

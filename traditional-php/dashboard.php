@@ -743,7 +743,7 @@ function getPendingActions($role, $user) {
                     </li>
                     <?php endif; ?>
 
-                    <?php if (canAccessModule('subjects') || canAccessModule('tests') || canAccessModule('grades') || canAccessModule('students') || canAccessModule('faculty')): ?>
+                    <?php if (canAccessModule('courses') || canAccessModule('subjects') || canAccessModule('tests') || canAccessModule('grades') || canAccessModule('students') || canAccessModule('faculty')): ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="academicDropdown" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-mortarboard"></i> Academic
@@ -754,6 +754,9 @@ function getPendingActions($role, $user) {
                             <?php endif; ?>
                             <?php if (canAccessModule('faculty')): ?>
                             <li><a class="dropdown-item" href="faculty.php"><i class="bi bi-person-badge"></i> Faculty</a></li>
+                            <?php endif; ?>
+                            <?php if (canAccessModule('courses')): ?>
+                            <li><a class="dropdown-item" href="courses.php"><i class="bi bi-mortarboard-fill"></i> Courses</a></li>
                             <?php endif; ?>
                             <?php if (canAccessModule('subjects')): ?>
                             <li><a class="dropdown-item" href="subjects.php"><i class="bi bi-journal-text"></i> Subjects</a></li>

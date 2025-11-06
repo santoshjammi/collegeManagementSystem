@@ -35,6 +35,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         'academic_status' => $_POST['academic_status'] ?? 'Active',
         'anticipated_graduation_year' => $_POST['anticipated_graduation_year'] ?? null,
         'gender' => $_POST['gender'] ?? 'Other',
+        'date_of_birth' => $_POST['date_of_birth'] ?? null,
+        'date_of_joining' => $_POST['date_of_joining'] ?? null,
+        'address_line1' => $_POST['address_line1'] ?? '',
+        'address_line2' => $_POST['address_line2'] ?? '',
+        'city' => $_POST['city'] ?? '',
+        'state' => $_POST['state'] ?? '',
+        'postal_code' => $_POST['postal_code'] ?? '',
+        'country' => $_POST['country'] ?? 'India',
+        'guardian_name' => $_POST['guardian_name'] ?? '',
+        'guardian_relation' => $_POST['guardian_relation'] ?? '',
+        'guardian_contact_number' => $_POST['guardian_contact_number'] ?? '',
+        'guardian_email' => $_POST['guardian_email'] ?? '',
+        'guardian_occupation' => $_POST['guardian_occupation'] ?? '',
+        'guardian_address_line1' => $_POST['guardian_address_line1'] ?? '',
+        'guardian_address_line2' => $_POST['guardian_address_line2'] ?? '',
+        'guardian_city' => $_POST['guardian_city'] ?? '',
+        'guardian_state' => $_POST['guardian_state'] ?? '',
+        'guardian_postal_code' => $_POST['guardian_postal_code'] ?? '',
+        'guardian_country' => $_POST['guardian_country'] ?? 'India',
         'profile_picture' => null
     ];
 
@@ -79,6 +98,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 academic_status = ?,
                 anticipated_graduation_year = ?,
                 gender = ?,
+                date_of_birth = ?,
+                date_of_joining = ?,
+                address_line1 = ?,
+                address_line2 = ?,
+                city = ?,
+                state = ?,
+                postal_code = ?,
+                country = ?,
+                guardian_name = ?,
+                guardian_relation = ?,
+                guardian_contact_number = ?,
+                guardian_email = ?,
+                guardian_occupation = ?,
+                guardian_address_line1 = ?,
+                guardian_address_line2 = ?,
+                guardian_city = ?,
+                guardian_state = ?,
+                guardian_postal_code = ?,
+                guardian_country = ?,
                 profile_picture = ?
             WHERE student_pk_id = ?
         ");
@@ -92,6 +130,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $data['academic_status'],
             $data['anticipated_graduation_year'],
             $data['gender'],
+            $data['date_of_birth'],
+            $data['date_of_joining'],
+            $data['address_line1'],
+            $data['address_line2'],
+            $data['city'],
+            $data['state'],
+            $data['postal_code'],
+            $data['country'],
+            $data['guardian_name'],
+            $data['guardian_relation'],
+            $data['guardian_contact_number'],
+            $data['guardian_email'],
+            $data['guardian_occupation'],
+            $data['guardian_address_line1'],
+            $data['guardian_address_line2'],
+            $data['guardian_city'],
+            $data['guardian_state'],
+            $data['guardian_postal_code'],
+            $data['guardian_country'],
             $data['profile_picture'],
             $_POST['student_pk_id']
         ]);
@@ -99,8 +156,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     } else {
         // Insert
         $stmt = $pdo->prepare("
-            INSERT INTO students (student_id, full_name, contact_number, email, course_id, batch_id, academic_status, anticipated_graduation_year, gender, profile_picture, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            INSERT INTO students (student_id, full_name, contact_number, email, course_id, batch_id, academic_status, anticipated_graduation_year, gender, date_of_birth, date_of_joining, address_line1, address_line2, city, state, postal_code, country, guardian_name, guardian_relation, guardian_contact_number, guardian_email, guardian_occupation, guardian_address_line1, guardian_address_line2, guardian_city, guardian_state, guardian_postal_code, guardian_country, profile_picture, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ");
         $stmt->execute([
             $data['student_id'],
@@ -112,6 +169,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $data['academic_status'],
             $data['anticipated_graduation_year'],
             $data['gender'],
+            $data['date_of_birth'],
+            $data['date_of_joining'],
+            $data['address_line1'],
+            $data['address_line2'],
+            $data['city'],
+            $data['state'],
+            $data['postal_code'],
+            $data['country'],
+            $data['guardian_name'],
+            $data['guardian_relation'],
+            $data['guardian_contact_number'],
+            $data['guardian_email'],
+            $data['guardian_occupation'],
+            $data['guardian_address_line1'],
+            $data['guardian_address_line2'],
+            $data['guardian_city'],
+            $data['guardian_state'],
+            $data['guardian_postal_code'],
+            $data['guardian_country'],
             $data['profile_picture']
         ]);
         $_SESSION['message'] = 'Student added successfully';
@@ -173,10 +249,105 @@ $batches = $pdo->query("SELECT * FROM batches ORDER BY batch_year DESC")->fetchA
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <style>
-        .table-actions { white-space: nowrap; }
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #43e97b;
+            --warning-color: #fa709a;
+            --info-color: #4facfe;
+            --danger-color: #f5576c;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .stat-card, .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: none;
+            overflow: hidden;
+        }
+
+        .stat-card:hover, .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .table thead th {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            letter-spacing: 0.5px;
+        }
+
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+
+        .table-actions { 
+            white-space: nowrap; 
+        }
+
+        @media (max-width: 768px) {
+            .container-fluid {
+                padding: 1rem;
+            }
+        }
     </style>
 </head>
-<body class="bg-light">
+<body>
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow">
         <div class="container">
@@ -207,7 +378,7 @@ $batches = $pdo->query("SELECT * FROM batches ORDER BY batch_year DESC")->fetchA
                     </li>
                     <?php endif; ?>
 
-                    <?php if (canAccessModule('subjects') || canAccessModule('tests') || canAccessModule('grades') || canAccessModule('students') || canAccessModule('faculty')): ?>
+                    <?php if (canAccessModule('courses') || canAccessModule('subjects') || canAccessModule('tests') || canAccessModule('grades') || canAccessModule('students') || canAccessModule('faculty')): ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="academicDropdown" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-mortarboard"></i> Academic
@@ -215,6 +386,9 @@ $batches = $pdo->query("SELECT * FROM batches ORDER BY batch_year DESC")->fetchA
                         <ul class="dropdown-menu">
                             <?php if (canAccessModule('students')): ?>
                             <li><a class="dropdown-item" href="students.php"><i class="bi bi-people"></i> Students</a></li>
+                            <?php endif; ?>
+                            <?php if (canAccessModule('courses')): ?>
+                            <li><a class="dropdown-item" href="courses.php"><i class="bi bi-book"></i> Courses</a></li>
                             <?php endif; ?>
                             <?php if (canAccessModule('faculty')): ?>
                             <li><a class="dropdown-item" href="faculty.php"><i class="bi bi-person-badge"></i> Faculty</a></li>
@@ -399,8 +573,10 @@ $batches = $pdo->query("SELECT * FROM batches ORDER BY batch_year DESC")->fetchA
                                         <th>Student ID</th>
                                         <th>Name</th>
                                         <th>Email</th>
+                                        <th>Contact</th>
                                         <th>Course</th>
-                                        <th>Batch</th>
+                                        <th>Date of Joining</th>
+                                        <th>Guardian</th>
                                         <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
@@ -408,7 +584,7 @@ $batches = $pdo->query("SELECT * FROM batches ORDER BY batch_year DESC")->fetchA
                                 <tbody>
                                     <?php if (empty($students)): ?>
                                         <tr>
-                                            <td colspan="8" class="text-center text-muted">No students found</td>
+                                            <td colspan="10" class="text-center text-muted">No students found</td>
                                         </tr>
                                     <?php else: ?>
                                         <?php foreach ($students as $student): ?>
@@ -420,6 +596,7 @@ $batches = $pdo->query("SELECT * FROM batches ORDER BY batch_year DESC")->fetchA
                                             <td><?php echo escape($student['student_id']); ?></td>
                                             <td><?php echo escape($student['full_name']); ?></td>
                                             <td><?php echo escape($student['email'] ?? '-'); ?></td>
+                                            <td><?php echo escape($student['contact_number'] ?? '-'); ?></td>
                                             <td>
                                                 <?php if ($student['course_name']): ?>
                                                     <span class="badge bg-info">
@@ -430,7 +607,8 @@ $batches = $pdo->query("SELECT * FROM batches ORDER BY batch_year DESC")->fetchA
                                                     -
                                                 <?php endif; ?>
                                             </td>
-                                            <td><?php echo escape($student['batch_name'] ?? '-'); ?></td>
+                                            <td><?php echo escape($student['date_of_joining'] ? date('M d, Y', strtotime($student['date_of_joining'])) : '-'); ?></td>
+                                            <td><?php echo escape($student['guardian_name'] ?? '-'); ?></td>
                                             <td>
                                                 <span class="badge bg-<?php 
                                                     echo $student['academic_status'] === 'Active' ? 'success' : 
@@ -507,8 +685,8 @@ $batches = $pdo->query("SELECT * FROM batches ORDER BY batch_year DESC")->fetchA
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Course</label>
-                                <select class="form-select" name="course_id" id="course_id">
+                                <label class="form-label">Course *</label>
+                                <select class="form-select" name="course_id" id="course_id" required>
                                     <option value="">Select Course</option>
                                     <?php foreach ($courses as $course): ?>
                                         <option value="<?php echo $course['course_id']; ?>">
@@ -518,8 +696,8 @@ $batches = $pdo->query("SELECT * FROM batches ORDER BY batch_year DESC")->fetchA
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Batch</label>
-                                <select class="form-select" name="batch_id" id="batch_id">
+                                <label class="form-label">Batch *</label>
+                                <select class="form-select" name="batch_id" id="batch_id" required>
                                     <option value="">Select Batch</option>
                                     <?php foreach ($batches as $batch): ?>
                                         <option value="<?php echo $batch['batch_id']; ?>">
@@ -532,8 +710,8 @@ $batches = $pdo->query("SELECT * FROM batches ORDER BY batch_year DESC")->fetchA
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Academic Status</label>
-                                <select class="form-select" name="academic_status" id="academic_status">
+                                <label class="form-label">Academic Status *</label>
+                                <select class="form-select" name="academic_status" id="academic_status" required>
                                     <option value="Active">Active</option>
                                     <option value="Graduated">Graduated</option>
                                     <option value="Suspended">Suspended</option>
@@ -546,6 +724,115 @@ $batches = $pdo->query("SELECT * FROM batches ORDER BY batch_year DESC")->fetchA
                                     <option value="Male">Male</option>
                                     <option value="Female">Female</option>
                                 </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Date of Birth</label>
+                                <input type="date" class="form-control" name="date_of_birth" id="date_of_birth">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Date of Joining</label>
+                                <input type="date" class="form-control" name="date_of_joining" id="date_of_joining">
+                            </div>
+                        </div>
+
+                        <h6 class="mt-4 mb-3">Address Information</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Address Line 1</label>
+                                <input type="text" class="form-control" name="address_line1" id="address_line1" placeholder="Street address">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Address Line 2</label>
+                                <input type="text" class="form-control" name="address_line2" id="address_line2" placeholder="Apartment, suite, etc.">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">City</label>
+                                <input type="text" class="form-control" name="city" id="city">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">State</label>
+                                <input type="text" class="form-control" name="state" id="state">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Postal Code</label>
+                                <input type="text" class="form-control" name="postal_code" id="postal_code">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Country</label>
+                                <input type="text" class="form-control" name="country" id="country" value="India">
+                            </div>
+                        </div>
+
+                        <h6 class="mt-4 mb-3">Guardian Information</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Guardian Name</label>
+                                <input type="text" class="form-control" name="guardian_name" id="guardian_name">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Relationship</label>
+                                <select class="form-select" name="guardian_relation" id="guardian_relation">
+                                    <option value="">Select Relationship</option>
+                                    <option value="Father">Father</option>
+                                    <option value="Mother">Mother</option>
+                                    <option value="Guardian">Guardian</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Guardian Contact Number</label>
+                                <input type="text" class="form-control" name="guardian_contact_number" id="guardian_contact_number">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Guardian Email</label>
+                                <input type="email" class="form-control" name="guardian_email" id="guardian_email">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Guardian Occupation</label>
+                                <input type="text" class="form-control" name="guardian_occupation" id="guardian_occupation">
+                            </div>
+                        </div>
+
+                        <h6 class="mt-4 mb-3">Guardian Address</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Guardian Address Line 1</label>
+                                <input type="text" class="form-control" name="guardian_address_line1" id="guardian_address_line1" placeholder="Street address">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Guardian Address Line 2</label>
+                                <input type="text" class="form-control" name="guardian_address_line2" id="guardian_address_line2" placeholder="Apartment, suite, etc.">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Guardian City</label>
+                                <input type="text" class="form-control" name="guardian_city" id="guardian_city">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Guardian State</label>
+                                <input type="text" class="form-control" name="guardian_state" id="guardian_state">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Guardian Postal Code</label>
+                                <input type="text" class="form-control" name="guardian_postal_code" id="guardian_postal_code">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Guardian Country</label>
+                                <input type="text" class="form-control" name="guardian_country" id="guardian_country" value="India">
                             </div>
                         </div>
 
@@ -656,6 +943,27 @@ $batches = $pdo->query("SELECT * FROM batches ORDER BY batch_year DESC")->fetchA
             document.getElementById('academic_status').value = student.academic_status;
             document.getElementById('anticipated_graduation_year').value = student.anticipated_graduation_year || '';
             document.getElementById('gender').value = student.gender || 'Other';
+            
+            // New fields
+            document.getElementById('date_of_birth').value = student.date_of_birth || '';
+            document.getElementById('date_of_joining').value = student.date_of_joining || '';
+            document.getElementById('address_line1').value = student.address_line1 || '';
+            document.getElementById('address_line2').value = student.address_line2 || '';
+            document.getElementById('city').value = student.city || '';
+            document.getElementById('state').value = student.state || '';
+            document.getElementById('postal_code').value = student.postal_code || '';
+            document.getElementById('country').value = student.country || 'India';
+            document.getElementById('guardian_name').value = student.guardian_name || '';
+            document.getElementById('guardian_relation').value = student.guardian_relation || '';
+            document.getElementById('guardian_contact_number').value = student.guardian_contact_number || '';
+            document.getElementById('guardian_email').value = student.guardian_email || '';
+            document.getElementById('guardian_occupation').value = student.guardian_occupation || '';
+            document.getElementById('guardian_address_line1').value = student.guardian_address_line1 || '';
+            document.getElementById('guardian_address_line2').value = student.guardian_address_line2 || '';
+            document.getElementById('guardian_city').value = student.guardian_city || '';
+            document.getElementById('guardian_state').value = student.guardian_state || '';
+            document.getElementById('guardian_postal_code').value = student.guardian_postal_code || '';
+            document.getElementById('guardian_country').value = student.guardian_country || 'India';
 
             // Handle profile picture options
             const hasPicture = student.profile_picture;
@@ -707,6 +1015,239 @@ $batches = $pdo->query("SELECT * FROM batches ORDER BY batch_year DESC")->fetchA
         // View student details function for faculty
         function viewStudentDetails(studentId) {
             window.location.href = 'student_details.php?id=' + studentId;
+        }
+
+        // Form validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('#studentModal form');
+            const requiredFields = [
+                { id: 'student_id', name: 'Student ID' },
+                { id: 'full_name', name: 'Full Name' },
+                { id: 'course_id', name: 'Course' },
+                { id: 'batch_id', name: 'Batch' },
+                { id: 'academic_status', name: 'Academic Status' }
+            ];
+
+            // Add blur event listeners for real-time validation
+            requiredFields.forEach(field => {
+                const element = document.getElementById(field.id);
+                if (element) {
+                    element.addEventListener('blur', function() {
+                        validateField(field.id, field.name);
+                    });
+                }
+            });
+
+            // Email validation
+            const emailField = document.getElementById('email');
+            if (emailField) {
+                emailField.addEventListener('blur', function() {
+                    validateEmail();
+                });
+            }
+
+            // Date validation
+            const dateOfBirthField = document.getElementById('date_of_birth');
+            const dateOfJoiningField = document.getElementById('date_of_joining');
+
+            if (dateOfBirthField) {
+                dateOfBirthField.addEventListener('blur', function() {
+                    validateDateOfBirth();
+                });
+            }
+
+            if (dateOfJoiningField) {
+                dateOfJoiningField.addEventListener('blur', function() {
+                    validateDateOfJoining();
+                });
+            }
+
+            // Form submit validation
+            form.addEventListener('submit', function(e) {
+                let isValid = true;
+
+                // Clear previous errors
+                clearAllErrors();
+
+                // Validate required fields
+                requiredFields.forEach(field => {
+                    if (!validateField(field.id, field.name)) {
+                        isValid = false;
+                    }
+                });
+
+                // Validate email if provided
+                if (emailField && emailField.value.trim() !== '') {
+                    if (!validateEmail()) {
+                        isValid = false;
+                    }
+                }
+
+                // Validate dates if provided
+                if (dateOfBirthField && dateOfBirthField.value) {
+                    if (!validateDateOfBirth()) {
+                        isValid = false;
+                    }
+                }
+
+                if (dateOfJoiningField && dateOfJoiningField.value) {
+                    if (!validateDateOfJoining()) {
+                        isValid = false;
+                    }
+                }
+
+                // Validate contact number format if provided
+                const contactField = document.getElementById('contact_number');
+                if (contactField && contactField.value.trim() !== '') {
+                    if (!validateContactNumber()) {
+                        isValid = false;
+                    }
+                }
+
+                if (!isValid) {
+                    e.preventDefault();
+                    // Scroll to first error
+                    const firstError = document.querySelector('.is-invalid');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstError.focus();
+                    }
+                }
+            });
+        });
+
+        function validateField(fieldId, fieldName) {
+            const field = document.getElementById(fieldId);
+            const value = field.value.trim();
+            let isValid = true;
+            let errorMessage = '';
+
+            // Clear previous error
+            clearFieldError(fieldId);
+
+            if (!value) {
+                isValid = false;
+                errorMessage = `${fieldName} is required.`;
+            } else {
+                // Additional validation based on field type
+                switch(fieldId) {
+                    case 'student_id':
+                        if (value.length < 3) {
+                            isValid = false;
+                            errorMessage = 'Student ID must be at least 3 characters long.';
+                        }
+                        break;
+                    case 'full_name':
+                        if (value.length < 2) {
+                            isValid = false;
+                            errorMessage = 'Full Name must be at least 2 characters long.';
+                        }
+                        break;
+                }
+            }
+
+            if (!isValid) {
+                showFieldError(fieldId, errorMessage);
+            }
+
+            return isValid;
+        }
+
+        function validateEmail() {
+            const emailField = document.getElementById('email');
+            const email = emailField.value.trim();
+            clearFieldError('email');
+
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showFieldError('email', 'Please enter a valid email address.');
+                return false;
+            }
+            return true;
+        }
+
+        function validateDateOfBirth() {
+            const dobField = document.getElementById('date_of_birth');
+            const dob = new Date(dobField.value);
+            const today = new Date();
+            clearFieldError('date_of_birth');
+
+            if (dobField.value && dob > today) {
+                showFieldError('date_of_birth', 'Date of Birth cannot be in the future.');
+                return false;
+            }
+
+            // Check if age is reasonable (not more than 100 years old)
+            const age = today.getFullYear() - dob.getFullYear();
+            if (dobField.value && age > 100) {
+                showFieldError('date_of_birth', 'Please check the date of birth.');
+                return false;
+            }
+
+            return true;
+        }
+
+        function validateDateOfJoining() {
+            const dojField = document.getElementById('date_of_joining');
+            const doj = new Date(dojField.value);
+            const today = new Date();
+            clearFieldError('date_of_joining');
+
+            if (dojField.value && doj > today) {
+                showFieldError('date_of_joining', 'Date of Joining cannot be in the future.');
+                return false;
+            }
+
+            return true;
+        }
+
+        function validateContactNumber() {
+            const contactField = document.getElementById('contact_number');
+            const contact = contactField.value.trim();
+            clearFieldError('contact_number');
+
+            // Basic phone number validation (allows digits, spaces, hyphens, parentheses, plus)
+            if (contact && !/^[\d\s\-\(\)\+]{10,15}$/.test(contact.replace(/\s/g, ''))) {
+                showFieldError('contact_number', 'Please enter a valid contact number (10-15 digits).');
+                return false;
+            }
+            return true;
+        }
+
+        function showFieldError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            field.classList.add('is-invalid');
+
+            // Create or update error message
+            let errorElement = document.getElementById(fieldId + '_error');
+            if (!errorElement) {
+                errorElement = document.createElement('div');
+                errorElement.id = fieldId + '_error';
+                errorElement.className = 'invalid-feedback';
+                field.parentNode.appendChild(errorElement);
+            }
+            errorElement.textContent = message;
+        }
+
+        function clearFieldError(fieldId) {
+            const field = document.getElementById(fieldId);
+            field.classList.remove('is-invalid');
+
+            const errorElement = document.getElementById(fieldId + '_error');
+            if (errorElement) {
+                errorElement.remove();
+            }
+        }
+
+        function clearAllErrors() {
+            // Clear all field errors
+            document.querySelectorAll('.is-invalid').forEach(field => {
+                field.classList.remove('is-invalid');
+            });
+
+            // Remove all error messages
+            document.querySelectorAll('.invalid-feedback').forEach(error => {
+                error.remove();
+            });
         }
     </script>
 </body>

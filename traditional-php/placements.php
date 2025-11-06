@@ -263,7 +263,7 @@ try {
                     </li>
                     <?php endif; ?>
 
-                    <?php if (canAccessModule('subjects') || canAccessModule('tests') || canAccessModule('grades') || canAccessModule('students') || canAccessModule('faculty')): ?>
+                    <?php if (canAccessModule('courses') || canAccessModule('subjects') || canAccessModule('tests') || canAccessModule('grades') || canAccessModule('students') || canAccessModule('faculty')): ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="academicDropdown" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-mortarboard"></i> Academic
@@ -271,6 +271,9 @@ try {
                         <ul class="dropdown-menu">
                             <?php if (canAccessModule('students')): ?>
                             <li><a class="dropdown-item" href="students.php"><i class="bi bi-people"></i> Students</a></li>
+                            <?php endif; ?>
+                            <?php if (canAccessModule('courses')): ?>
+                            <li><a class="dropdown-item" href="courses.php"><i class="bi bi-book"></i> Courses</a></li>
                             <?php endif; ?>
                             <?php if (canAccessModule('faculty')): ?>
                             <li><a class="dropdown-item" href="faculty.php"><i class="bi bi-person-badge"></i> Faculty</a></li>

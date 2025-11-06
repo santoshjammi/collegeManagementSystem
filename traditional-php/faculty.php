@@ -27,6 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         'primary_subject' => $_POST['primary_subject'] ?? '',
         'is_active' => $_POST['is_active'] ?? 1,
         'gender' => $_POST['gender'] ?? 'Other',
+        'date_of_birth' => $_POST['date_of_birth'] ?? null,
+        'date_of_joining' => $_POST['date_of_joining'] ?? null,
+        'address_line1' => $_POST['address_line1'] ?? '',
+        'address_line2' => $_POST['address_line2'] ?? '',
+        'city' => $_POST['city'] ?? '',
+        'state' => $_POST['state'] ?? '',
+        'postal_code' => $_POST['postal_code'] ?? '',
+        'country' => $_POST['country'] ?? 'India',
         'profile_picture' => null
     ];
 
@@ -71,6 +79,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 primary_subject = ?,
                 is_active = ?,
                 gender = ?,
+                date_of_birth = ?,
+                date_of_joining = ?,
+                address_line1 = ?,
+                address_line2 = ?,
+                city = ?,
+                state = ?,
+                postal_code = ?,
+                country = ?,
                 profile_picture = ?
             WHERE faculty_id = ?
         ");
@@ -84,6 +100,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $data['primary_subject'],
             $data['is_active'],
             $data['gender'],
+            $data['date_of_birth'],
+            $data['date_of_joining'],
+            $data['address_line1'],
+            $data['address_line2'],
+            $data['city'],
+            $data['state'],
+            $data['postal_code'],
+            $data['country'],
             $data['profile_picture'],
             $_POST['faculty_id']
         ]);
@@ -91,8 +115,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     } else {
         // Insert
         $stmt = $pdo->prepare("
-            INSERT INTO faculty (full_name, email, contact_number, department, employment_role, highest_degree, primary_subject, is_active, gender, profile_picture)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO faculty (full_name, email, contact_number, department, employment_role, highest_degree, primary_subject, is_active, gender, date_of_birth, date_of_joining, address_line1, address_line2, city, state, postal_code, country, profile_picture)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         $stmt->execute([
             $data['full_name'],
@@ -104,6 +128,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $data['primary_subject'],
             $data['is_active'],
             $data['gender'],
+            $data['date_of_birth'],
+            $data['date_of_joining'],
+            $data['address_line1'],
+            $data['address_line2'],
+            $data['city'],
+            $data['state'],
+            $data['postal_code'],
+            $data['country'],
             $data['profile_picture']
         ]);
         $_SESSION['message'] = 'Faculty member added successfully';
@@ -374,11 +406,105 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faculty Management - College Management System</title>
+    <title>Faculty Management - <?php echo SITE_NAME; ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #43e97b;
+            --warning-color: #fa709a;
+            --info-color: #4facfe;
+            --danger-color: #f5576c;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .stat-card, .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: none;
+            overflow: hidden;
+        }
+
+        .stat-card:hover, .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .table thead th {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            letter-spacing: 0.5px;
+        }
+
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+
+        @media (max-width: 768px) {
+            .container-fluid {
+                padding: 1rem;
+            }
+        }
+    </style>
 </head>
-<body class="bg-light">
+<body>
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow">
         <div class="container">
@@ -409,7 +535,7 @@ try {
                     </li>
                     <?php endif; ?>
 
-                    <?php if (canAccessModule('subjects') || canAccessModule('tests') || canAccessModule('grades') || canAccessModule('students') || canAccessModule('faculty')): ?>
+                    <?php if (canAccessModule('courses') || canAccessModule('subjects') || canAccessModule('tests') || canAccessModule('grades') || canAccessModule('students') || canAccessModule('faculty')): ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="academicDropdown" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-mortarboard"></i> Academic
@@ -417,6 +543,9 @@ try {
                         <ul class="dropdown-menu">
                             <?php if (canAccessModule('students')): ?>
                             <li><a class="dropdown-item" href="students.php"><i class="bi bi-people"></i> Students</a></li>
+                            <?php endif; ?>
+                            <?php if (canAccessModule('courses')): ?>
+                            <li><a class="dropdown-item" href="courses.php"><i class="bi bi-book"></i> Courses</a></li>
                             <?php endif; ?>
                             <?php if (canAccessModule('faculty')): ?>
                             <li><a class="dropdown-item" href="faculty.php"><i class="bi bi-person-badge"></i> Faculty</a></li>
@@ -714,7 +843,8 @@ try {
         <div class="row mb-4">
             <div class="col">
                 <h1 class="h3 mb-3">
-                    <i class="bi bi-person-badge me-2"></i>Faculty Management
+                    <i class="bi bi-person-badge me-2"></i>
+                    <?php echo canWrite('faculty') ? 'Faculty Management' : 'Faculty Directory'; ?>
                 </h1>
             </div>
             <div class="col-auto">
@@ -772,10 +902,14 @@ try {
                     <div class="text-center py-5">
                         <i class="bi bi-person-badge text-muted" style="font-size: 4rem;"></i>
                         <h5 class="mt-3 text-muted">No Faculty Members Found</h5>
-                        <p class="text-muted">Start by adding your first faculty member.</p>
+                        <p class="text-muted">
+                            <?php echo canWrite('faculty') ? 'Start by adding your first faculty member.' : 'Faculty information will be available soon.'; ?>
+                        </p>
+                        <?php if (canWrite('faculty')): ?>
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#facultyModal">
                             <i class="bi bi-plus"></i> Add Faculty Member
                         </button>
+                        <?php endif; ?>
                     </div>
                 <?php else: ?>
                     <div class="table-responsive">
@@ -789,6 +923,8 @@ try {
                                     <th>Department</th>
                                     <th>Designation</th>
                                     <th>Degree</th>
+                                    <th>Date of Joining</th>
+                                    <th>City</th>
                                     <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
@@ -806,6 +942,8 @@ try {
                                         <td><?= htmlspecialchars($member['department'] ?? '') ?></td>
                                         <td><?= htmlspecialchars($member['employment_role'] ?? '') ?></td>
                                         <td><?= htmlspecialchars($member['highest_degree'] ?? '') ?></td>
+                                        <td><?php echo $member['date_of_joining'] ? date('M d, Y', strtotime($member['date_of_joining'])) : '-'; ?></td>
+                                        <td><?= htmlspecialchars($member['city'] ?? '-') ?></td>
                                         <td>
                                             <span class="badge bg-<?= $member['is_active'] ? 'success' : 'secondary' ?>">
                                                 <?= $member['is_active'] ? 'Active' : 'Inactive' ?>
@@ -911,6 +1049,49 @@ try {
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
+                                <label class="form-label">Date of Birth</label>
+                                <input type="date" class="form-control" name="date_of_birth" id="date_of_birth">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Date of Joining *</label>
+                                <input type="date" class="form-control" name="date_of_joining" id="date_of_joining" required>
+                            </div>
+                        </div>
+
+                        <h6 class="mt-4 mb-3">Address Information</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Address Line 1</label>
+                                <input type="text" class="form-control" name="address_line1" id="address_line1" placeholder="Street address">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Address Line 2</label>
+                                <input type="text" class="form-control" name="address_line2" id="address_line2" placeholder="Apartment, suite, etc.">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">City</label>
+                                <input type="text" class="form-control" name="city" id="city">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">State</label>
+                                <input type="text" class="form-control" name="state" id="state">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Postal Code</label>
+                                <input type="text" class="form-control" name="postal_code" id="postal_code">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Country</label>
+                                <input type="text" class="form-control" name="country" id="country" value="India">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
                                 <label class="form-label">Primary Subject</label>
                                 <input type="text" name="primary_subject" id="primarySubject" class="form-control"
                                        placeholder="e.g., Computer Science, Mathematics">
@@ -980,6 +1161,16 @@ try {
             document.getElementById('primarySubject').value = faculty.primary_subject || '';
             document.getElementById('gender').value = faculty.gender || 'Other';
             document.getElementById('isActive').value = faculty.is_active;
+            
+            // New fields
+            document.getElementById('date_of_birth').value = faculty.date_of_birth || '';
+            document.getElementById('date_of_joining').value = faculty.date_of_joining || '';
+            document.getElementById('address_line1').value = faculty.address_line1 || '';
+            document.getElementById('address_line2').value = faculty.address_line2 || '';
+            document.getElementById('city').value = faculty.city || '';
+            document.getElementById('state').value = faculty.state || '';
+            document.getElementById('postal_code').value = faculty.postal_code || '';
+            document.getElementById('country').value = faculty.country || 'India';
 
             // Handle profile picture options
             const hasPicture = faculty.profile_picture;
@@ -1049,6 +1240,181 @@ try {
         document.getElementById('searchInput').addEventListener('input', submitSearch);
         document.getElementById('departmentSelect').addEventListener('change', submitSearch);
         document.getElementById('statusSelect').addEventListener('change', submitSearch);
+
+        // Form validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('facultyForm');
+            const requiredFields = [
+                { id: 'fullName', name: 'Full Name' },
+                { id: 'email', name: 'Email' },
+                { id: 'date_of_joining', name: 'Date of Joining' }
+            ];
+
+            // Add blur event listeners for real-time validation
+            requiredFields.forEach(field => {
+                const element = document.getElementById(field.id);
+                if (element) {
+                    element.addEventListener('blur', function() {
+                        validateField(field.id, field.name);
+                    });
+                }
+            });
+
+            // Email validation
+            const emailField = document.getElementById('email');
+            if (emailField) {
+                emailField.addEventListener('blur', function() {
+                    validateEmail();
+                });
+            }
+
+            // Date validation
+            const dateOfJoiningField = document.getElementById('date_of_joining');
+            if (dateOfJoiningField) {
+                dateOfJoiningField.addEventListener('blur', function() {
+                    validateDateOfJoining();
+                });
+            }
+
+            // Form submit validation
+            form.addEventListener('submit', function(e) {
+                let isValid = true;
+
+                // Clear previous errors
+                clearAllErrors();
+
+                // Validate required fields
+                requiredFields.forEach(field => {
+                    if (!validateField(field.id, field.name)) {
+                        isValid = false;
+                    }
+                });
+
+                // Validate email
+                if (!validateEmail()) {
+                    isValid = false;
+                }
+
+                // Validate date of joining
+                if (!validateDateOfJoining()) {
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    e.preventDefault();
+                    // Scroll to first error
+                    const firstError = document.querySelector('.is-invalid');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstError.focus();
+                    }
+                }
+            });
+        });
+
+        function validateField(fieldId, fieldName) {
+            const field = document.getElementById(fieldId);
+            const value = field.value.trim();
+            let isValid = true;
+            let errorMessage = '';
+
+            // Clear previous error
+            clearFieldError(fieldId);
+
+            if (!value) {
+                isValid = false;
+                errorMessage = `${fieldName} is required.`;
+            } else {
+                // Additional validation based on field type
+                switch(fieldId) {
+                    case 'fullName':
+                        if (value.length < 2) {
+                            isValid = false;
+                            errorMessage = 'Full Name must be at least 2 characters long.';
+                        }
+                        break;
+                }
+            }
+
+            if (!isValid) {
+                showFieldError(fieldId, errorMessage);
+            }
+
+            return isValid;
+        }
+
+        function validateEmail() {
+            const emailField = document.getElementById('email');
+            const email = emailField.value.trim();
+            clearFieldError('email');
+
+            if (!email) {
+                showFieldError('email', 'Email is required.');
+                return false;
+            }
+
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showFieldError('email', 'Please enter a valid email address.');
+                return false;
+            }
+            return true;
+        }
+
+        function validateDateOfJoining() {
+            const dojField = document.getElementById('date_of_joining');
+            const doj = new Date(dojField.value);
+            const today = new Date();
+            clearFieldError('date_of_joining');
+
+            if (!dojField.value) {
+                showFieldError('date_of_joining', 'Date of Joining is required.');
+                return false;
+            }
+
+            if (doj > today) {
+                showFieldError('date_of_joining', 'Date of Joining cannot be in the future.');
+                return false;
+            }
+
+            return true;
+        }
+
+        function showFieldError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            field.classList.add('is-invalid');
+
+            // Create or update error message
+            let errorElement = document.getElementById(fieldId + '_error');
+            if (!errorElement) {
+                errorElement = document.createElement('div');
+                errorElement.id = fieldId + '_error';
+                errorElement.className = 'invalid-feedback';
+                field.parentNode.appendChild(errorElement);
+            }
+            errorElement.textContent = message;
+        }
+
+        function clearFieldError(fieldId) {
+            const field = document.getElementById(fieldId);
+            field.classList.remove('is-invalid');
+
+            const errorElement = document.getElementById(fieldId + '_error');
+            if (errorElement) {
+                errorElement.remove();
+            }
+        }
+
+        function clearAllErrors() {
+            // Clear all field errors
+            document.querySelectorAll('.is-invalid').forEach(field => {
+                field.classList.remove('is-invalid');
+            });
+
+            // Remove all error messages
+            document.querySelectorAll('.invalid-feedback').forEach(error => {
+                error.remove();
+            });
+        }
     </script>
     <?php endif; ?>
 </body>

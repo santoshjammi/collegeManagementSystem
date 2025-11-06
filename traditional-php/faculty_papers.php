@@ -212,9 +212,96 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Papers & Publications - <?php echo SITE_NAME; ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #43e97b;
+            --warning-color: #fa709a;
+            --info-color: #4facfe;
+            --danger-color: #f5576c;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .stat-card, .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: none;
+            overflow: hidden;
+        }
+
+        .stat-card:hover, .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .table thead th {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            letter-spacing: 0.5px;
+        }
+
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+
         .paper-card {
             transition: transform 0.2s;
         }
@@ -229,9 +316,15 @@ try {
             color: #6c757d;
             font-size: 0.875rem;
         }
+
+        @media (max-width: 768px) {
+            .container-fluid {
+                padding: 1rem;
+            }
+        }
     </style>
 </head>
-<body class="bg-light">
+<body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
             <a class="navbar-brand" href="dashboard.php">
@@ -260,7 +353,7 @@ try {
                     </li>
                     <?php endif; ?>
 
-                    <?php if (canAccessModule('subjects') || canAccessModule('tests') || canAccessModule('grades') || canAccessModule('students') || canAccessModule('faculty') || canAccessModule('papers')): ?>
+                    <?php if (canAccessModule('courses') || canAccessModule('subjects') || canAccessModule('tests') || canAccessModule('grades') || canAccessModule('students') || canAccessModule('faculty') || canAccessModule('papers')): ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="academicDropdown" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-mortarboard"></i> Academic
@@ -268,6 +361,9 @@ try {
                         <ul class="dropdown-menu">
                             <?php if (canAccessModule('students')): ?>
                             <li><a class="dropdown-item" href="students.php"><i class="bi bi-people"></i> Students</a></li>
+                            <?php endif; ?>
+                            <?php if (canAccessModule('courses')): ?>
+                            <li><a class="dropdown-item" href="courses.php"><i class="bi bi-book"></i> Courses</a></li>
                             <?php endif; ?>
                             <?php if (canAccessModule('faculty')): ?>
                             <li><a class="dropdown-item" href="faculty.php"><i class="bi bi-person-badge"></i> Faculty</a></li>
@@ -340,39 +436,51 @@ try {
         </div>
     </nav>
 
-    <div class="container-fluid mt-4">
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <!-- Success/Error Messages -->
+        <?php if (isset($_SESSION['message'])): ?>
+            <div class="alert alert-success alert-dismissible fade show">
+                <?php echo escape($_SESSION['message']); unset($_SESSION['message']); ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php endif; ?>
+
+        <!-- Page Header -->
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="h3 mb-3">
+                    <i class="bi bi-file-earmark-text me-2"></i>
+                    Faculty Papers & Publications
+                </h1>
+                <p class="text-muted">Browse research papers and publications by faculty members</p>
+            </div>
+            <div class="col-auto">
+                <?php if (canWrite('papers')): ?>
+                <div class="btn-group" role="group">
+                    <a href="faculty.php?action=add_paper&type=faculty" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Add Faculty Paper
+                    </a>
+                    <a href="faculty.php?action=add_paper&type=student" class="btn btn-success">
+                        <i class="bi bi-plus-circle"></i> Add Student Paper
+                    </a>
+                </div>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <!-- Error Messages -->
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="alert alert-danger alert-dismissible fade show">
+                <?php echo escape($_SESSION['error']); unset($_SESSION['error']); ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php endif; ?>
+
         <div class="row">
             <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h2><i class="bi bi-file-earmark-text"></i> Faculty Papers & Publications</h2>
-                        <p class="text-muted">Browse research papers and publications by faculty members</p>
-                    </div>
-                    <?php if (canWrite('papers')): ?>
-                    <div class="btn-group" role="group">
-                        <a href="faculty.php?action=add_paper&type=faculty" class="btn btn-primary">
-                            <i class="bi bi-plus-circle"></i> Add Faculty Paper
-                        </a>
-                        <a href="faculty.php?action=add_paper&type=student" class="btn btn-success">
-                            <i class="bi bi-plus-circle"></i> Add Student Paper
-                        </a>
-                    </div>
-                    <?php endif; ?>
-                </div>
 
-                <?php if (isset($_SESSION['message'])): ?>
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <?php echo $_SESSION['message']; unset($_SESSION['message']); ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                <?php endif; ?>
 
-                <?php if (isset($_SESSION['error'])): ?>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                <?php endif; ?>
 
                 <!-- Search and Filters -->
                 <div class="card mb-4">

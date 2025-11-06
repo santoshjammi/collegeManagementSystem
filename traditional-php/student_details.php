@@ -97,7 +97,7 @@ $pageTitle = 'Student Details - ' . escape($student['full_name']);
                     </li>
                     <?php endif; ?>
 
-                    <?php if (canAccessModule('subjects') || canAccessModule('tests') || canAccessModule('grades') || canAccessModule('students') || canAccessModule('faculty')): ?>
+                    <?php if (canAccessModule('courses') || canAccessModule('subjects') || canAccessModule('tests') || canAccessModule('grades') || canAccessModule('students') || canAccessModule('faculty')): ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="academicDropdown" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-mortarboard"></i> Academic
@@ -105,6 +105,9 @@ $pageTitle = 'Student Details - ' . escape($student['full_name']);
                         <ul class="dropdown-menu">
                             <?php if (canAccessModule('students')): ?>
                             <li><a class="dropdown-item" href="students.php"><i class="bi bi-people"></i> Students</a></li>
+                            <?php endif; ?>
+                            <?php if (canAccessModule('courses')): ?>
+                            <li><a class="dropdown-item" href="courses.php"><i class="bi bi-book"></i> Courses</a></li>
                             <?php endif; ?>
                             <?php if (canAccessModule('faculty')): ?>
                             <li><a class="dropdown-item" href="faculty.php"><i class="bi bi-person-badge"></i> Faculty</a></li>
@@ -281,7 +284,21 @@ $pageTitle = 'Student Details - ' . escape($student['full_name']);
                     <div class="card-body">
                         <p><strong>Full Name:</strong> <?php echo escape($student['full_name']); ?></p>
                         <p><strong>Gender:</strong> <?php echo escape($student['gender'] ?? 'Not specified'); ?></p>
+                        <p><strong>Date of Birth:</strong> <?php echo $student['date_of_birth'] ? date('M d, Y', strtotime($student['date_of_birth'])) : 'Not specified'; ?></p>
+                        <p><strong>Date of Joining:</strong> <?php echo $student['date_of_joining'] ? date('M d, Y', strtotime($student['date_of_joining'])) : 'Not specified'; ?></p>
                         <p><strong>Student ID:</strong> <?php echo escape($student['student_id']); ?></p>
+                        <p><strong>Contact Number:</strong> <?php echo escape($student['contact_number'] ?? 'Not specified'); ?></p>
+                        <p><strong>Email:</strong> <?php echo escape($student['email'] ?? 'Not specified'); ?></p>
+                        <?php if ($student['address_line1'] || $student['city']): ?>
+                        <p><strong>Address:</strong><br>
+                            <?php echo escape($student['address_line1']); ?>
+                            <?php if ($student['address_line2']): echo '<br>' . escape($student['address_line2']); endif; ?>
+                            <?php if ($student['city']): echo '<br>' . escape($student['city']); endif; ?>
+                            <?php if ($student['state']): echo ', ' . escape($student['state']); endif; ?>
+                            <?php if ($student['postal_code']): echo ' ' . escape($student['postal_code']); endif; ?>
+                            <?php if ($student['country'] && $student['country'] !== 'India'): echo '<br>' . escape($student['country']); endif; ?>
+                        </p>
+                        <?php endif; ?>
                         <p><strong>Created:</strong> <?php echo date('M d, Y', strtotime($student['created_at'])); ?></p>
                     </div>
                 </div>
@@ -308,6 +325,42 @@ $pageTitle = 'Student Details - ' . escape($student['full_name']);
                 </div>
             </div>
         </div>
+
+        <!-- Guardian Information -->
+        <?php if ($student['guardian_name']): ?>
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card detail-card">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="bi bi-people me-2"></i>Guardian Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Guardian Name:</strong> <?php echo escape($student['guardian_name']); ?></p>
+                                <p><strong>Relationship:</strong> <?php echo escape($student['guardian_relation'] ?? 'Not specified'); ?></p>
+                                <p><strong>Contact Number:</strong> <?php echo escape($student['guardian_contact_number'] ?? 'Not specified'); ?></p>
+                                <p><strong>Email:</strong> <?php echo escape($student['guardian_email'] ?? 'Not specified'); ?></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Occupation:</strong> <?php echo escape($student['guardian_occupation'] ?? 'Not specified'); ?></p>
+                                <?php if ($student['guardian_address_line1'] || $student['guardian_city']): ?>
+                                <p><strong>Address:</strong><br>
+                                    <?php echo escape($student['guardian_address_line1']); ?>
+                                    <?php if ($student['guardian_address_line2']): echo '<br>' . escape($student['guardian_address_line2']); endif; ?>
+                                    <?php if ($student['guardian_city']): echo '<br>' . escape($student['guardian_city']); endif; ?>
+                                    <?php if ($student['guardian_state']): echo ', ' . escape($student['guardian_state']); endif; ?>
+                                    <?php if ($student['guardian_postal_code']): echo ' ' . escape($student['guardian_postal_code']); endif; ?>
+                                    <?php if ($student['guardian_country'] && $student['guardian_country'] !== 'India'): echo '<br>' . escape($student['guardian_country']); endif; ?>
+                                </p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
 
         <!-- Back Button -->
         <div class="mt-4">
